@@ -19,7 +19,11 @@ from cStringIO import StringIO
 # replication is a simple polling process every 10 minutes (about 30MB per month, which can be had for about $10/month)
 # if the token file exists on server but not client, it is created in the client (directory above UsedTokens)
 # if the token file has been moved to UsedTokens, actions are taken to inform the server of the token use.
+
+#todo:
 # no revocation yet 
+# limit polling hours to 6am to 11pm
+# merge with relay usb board commands
 
 quitnow=0
 
