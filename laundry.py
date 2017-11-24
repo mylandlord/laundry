@@ -6,6 +6,7 @@ import threading
 import time
 from ftplib import FTP
 from cStringIO import StringIO
+import serial
 import cred
 
 POLLSECONDS=10
@@ -81,6 +82,7 @@ def readlocal():
 def keyboard_loop():
     global quitnow
     global startupdir
+    global ser
     print 'keyboard loop started ...'
     a = ''
     while (a != 'quit'):
@@ -92,7 +94,28 @@ def keyboard_loop():
             t=a[1:7].lower()+'.tok'
             try:
                 os.rename(startupdir+'/'+t,startupdir+'/UsedTokens/'+t)
-                print 'switched'
+                try:
+                    ser.write(b"REL"+m+".ON"+chr(13)+chr(10))
+                    print ser.readline()
+                    print ser.readline()
+                    print ser.readline()
+                    print ser.readline()
+                    ser.write(b"REL"+m+".OFF"+chr(13)+chr(10))
+                    print ser.readline()
+                    print ser.readline()
+                    print ser.readline()
+                    print ser.readline()
+                    print 'switched'
+                except:
+                    print "Reopen"
+                    ser.close()
+                    s="0"
+                    try:
+                        ser=serial.Serial("/dev/ttyACM"+s,timeout=1)
+                    except:
+                        s="1"
+                        ser=serial.Serial("/dev/ttyACM"+s,timeout=1)
+
             except:
                 print 'not switched'
         else:
@@ -120,7 +143,22 @@ def transfertokens(ftp, st,su,lt,lu):
             f.close()
         print 'delete ' + l + ' in local used'
         os.remove('UsedTokens/'+l)
-        
+
+s="0"
+try:
+    ser=serial.Serial("/dev/ttyACM"+s,timeout=1)
+except:
+    s="1"
+    ser=serial.Serial("/dev/ttyACM"+s,timeout=1)
+print "readinline 1"
+print ser.readline()
+print "readinline 2"
+print ser.readline()
+print "readinline 3"
+print ser.readline()
+print ser.readline()
+print ser.readline()
+print ser.readline()        
 t=threading.Thread(target=keyboard_loop)
 t.start()
 startupdir=os.getcwd()
