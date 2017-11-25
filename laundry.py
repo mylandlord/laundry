@@ -8,6 +8,7 @@ from ftplib import FTP
 from cStringIO import StringIO
 import serial
 import cred
+import signal
 
 POLLSECONDS=10
 
@@ -27,6 +28,18 @@ POLLSECONDS=10
 # when I tried push using Goodsync mediator, the data usage to keep connection alive was nearly 2GB per month. Polling can tear down connection after just a few milliseconds and this uses only 30MB per month.
 # if the token file exists on server but not client, it is created in the client (directory above UsedTokens), thus available to a tenant to type in and activate laundry machine
 # if the token file has been moved to UsedTokens, actions are repeatedly taken to inform the server of the token use until successful
+#
+#signals, to prevent early termination by tenant
+# SIGKILL - cant avoid
+# SIGTERM - can hook, but dont need to
+# SIGINT - from keyboard, ctrl-C, should ignore
+# SIGQUIT - from keyboard, ctrl-backslash, should ignore
+# SIGSTP - from keyboard, ctrl-Z, should ignore
+# SIGHUP - from keyboard, ctrl-d, not sure
+
+#exception EOFError
+#Raised when one of the built-in functions (input() or raw_input()) hits an end-of-file condition (EOF) without reading any data. (N.B.: the file.read() and file.readline() methods return an empty string when they hit EOF.)
+
 
 #todo:
 # no revocation yet 
@@ -159,9 +172,12 @@ print ser.readline()
 print ser.readline()
 print ser.readline()
 print ser.readline()        
+startupdir=os.getcwd()
+signal.signal(SIGINT, signal.SIG_IGN)
+signal.signal(SIGQUIT, signal.SIG_IGN) # not on windows
+
 t=threading.Thread(target=keyboard_loop)
 t.start()
-startupdir=os.getcwd()
 print startupdir
 while quitnow==0:
     try:
