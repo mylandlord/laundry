@@ -173,8 +173,9 @@ print ser.readline()
 print ser.readline()
 print ser.readline()        
 startupdir=os.getcwd()
-signal.signal(SIGINT, signal.SIG_IGN)
-signal.signal(SIGQUIT, signal.SIG_IGN) # not on windows
+signal.signal(signal.SIGINT, signal.SIG_IGN) # ctrl-C
+signal.signal(signal.SIGQUIT, signal.SIG_IGN) # ctrl-backslash - not on windows
+# signal.signal(signal.SIGSTP, signal.SIG_IGN) # ctrl-Z, SIGSTP not on pi
 
 t=threading.Thread(target=keyboard_loop)
 t.start()
