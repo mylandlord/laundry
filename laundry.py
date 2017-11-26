@@ -34,7 +34,7 @@ POLLSECONDS=10
 # SIGTERM - can hook, but dont need to
 # SIGINT - from keyboard, ctrl-C, should ignore
 # SIGQUIT - from keyboard, ctrl-backslash, should ignore
-# SIGSTP - from keyboard, ctrl-Z, should ignore
+# SIGTSTP - from keyboard, ctrl-Z, should ignore
 # SIGHUP - from keyboard, ctrl-d, not sure
 
 #exception EOFError
@@ -173,8 +173,9 @@ print ser.readline()
 print ser.readline()
 print ser.readline()        
 startupdir=os.getcwd()
-signal.signal(SIGINT, signal.SIG_IGN)
-signal.signal(SIGQUIT, signal.SIG_IGN) # not on windows
+signal.signal(signal.SIGINT, signal.SIG_IGN)
+signal.signal(signal.SIGQUIT, signal.SIG_IGN) # not on windows
+signal.signal(signal.SIGTSTP, signal.SIG_IGN)
 
 t=threading.Thread(target=keyboard_loop)
 t.start()
