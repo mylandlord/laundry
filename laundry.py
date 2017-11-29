@@ -10,7 +10,7 @@ import serial
 import cred
 import signal
 
-POLLSECONDS=10
+POLLSECONDS=600
 
 # Python 2.7 because thats on my Raspberry Pi
 # this is the embedded client
@@ -34,17 +34,17 @@ POLLSECONDS=10
 # SIGTERM - can hook, but dont need to
 # SIGINT - from keyboard, ctrl-C, should ignore
 # SIGQUIT - from keyboard, ctrl-backslash, should ignore
-# SIGSTP - from keyboard, ctrl-Z, should ignore
+# SIGTSTP - from keyboard, ctrl-Z, should ignore
 # SIGHUP - from keyboard, ctrl-d, not sure
 
 #exception EOFError
-#Raised when one of the built-in functions (input() or raw_input()) hits an end-of-file condition (EOF) without reading any data. (N.B.: the file.read() and file.readline() methods return an empty string when they hit EOF.)
+# Raised when one of the built-in functions (input() or raw_input()) hits an 
+# end-of-file condition (EOF) without reading any data. (N.B.: the file.read() and file.readline() methods return an empty string when they hit EOF.)
 
 
 #todo:
 # no revocation yet 
 # limit polling hours to 6am to 11pm
-# merge with relay usb board commands
 
 startupdir=''
 quitnow=0
@@ -92,14 +92,30 @@ def readlocal():
     print local_used
     return local_tokens, local_used
     
+def toggle_relay(m):
+    ser.write(b"REL"+m+".ON"+chr(13)+chr(10))
+    print ser.readline()
+    print ser.readline()
+    print ser.readline()
+    print ser.readline()
+    ser.write(b"REL"+m+".OFF"+chr(13)+chr(10))
+    print ser.readline()
+    print ser.readline()
+    print ser.readline()
+    print ser.readline()
+    print 'switched'
+
 def keyboard_loop():
     global quitnow
     global startupdir
     global ser
     print 'keyboard loop started ...'
     a = ''
-    while (a != 'quit'):
-        a=raw_input('enter the 2abcdef')
+    while (a != 'wpm'):
+        try:
+            a=raw_input('enter the 2abcdef')
+        except:
+            print "CTRL-D pressed"
         a=filter(str.isalnum, a)
         print a
         if len(a)==7:
@@ -108,17 +124,7 @@ def keyboard_loop():
             try:
                 os.rename(startupdir+'/'+t,startupdir+'/UsedTokens/'+t)
                 try:
-                    ser.write(b"REL"+m+".ON"+chr(13)+chr(10))
-                    print ser.readline()
-                    print ser.readline()
-                    print ser.readline()
-                    print ser.readline()
-                    ser.write(b"REL"+m+".OFF"+chr(13)+chr(10))
-                    print ser.readline()
-                    print ser.readline()
-                    print ser.readline()
-                    print ser.readline()
-                    print 'switched'
+                    toggle_relay(m)
                 except:
                     print "Reopen"
                     ser.close()
@@ -136,10 +142,10 @@ def keyboard_loop():
     quitnow=1
             
 def transfertokens(ftp, st,su,lt,lu):
-    print 'transfertokens'
+    print 'transfertokens ' + os.getcwd()
     for s in st:
         if not (s in lt) and not (s in lu) and not (s in su):
-            print 'create ' + s + ' in local tokens'
+            print 'create '+ s + ' in local unused '
             f= open(s,"w+")
             f.close()
     for l in lu:
@@ -149,7 +155,7 @@ def transfertokens(ftp, st,su,lt,lu):
         except:
             pass
         print 'create ' + l + ' in server used'
-        f=open('UsedTokens/'+l,'r') # could be any small file
+        f=open('UsedTokens/' + l,'r') # could be any small file
         try:
             ftp.storlines('STOR UsedTokens/' + l,f)
         finally:
@@ -175,7 +181,10 @@ print ser.readline()
 startupdir=os.getcwd()
 signal.signal(signal.SIGINT, signal.SIG_IGN) # ctrl-C
 signal.signal(signal.SIGQUIT, signal.SIG_IGN) # ctrl-backslash - not on windows
-# signal.signal(signal.SIGSTP, signal.SIG_IGN) # ctrl-Z, SIGSTP not on pi
+signal.signal(signal.SIGTSTP, signal.SIG_IGN) # ctrl-Z, SIGSTP not on pi
+
+toggle_relay("0")
+toggle_relay("1")
 
 t=threading.Thread(target=keyboard_loop)
 t.start()
@@ -194,5 +203,8 @@ while quitnow==0:
             ftp.quit()
     except:
         print 'Exception caught ', sys.exc_info()
-    time.sleep(POLLSECONDS)
+    for i in range(0,POLLSECONDS/5):
+        if quitnow!=0:
+            break
+    	time.sleep(5)
     
