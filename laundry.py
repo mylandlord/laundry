@@ -186,8 +186,8 @@ signal.signal(signal.SIGTSTP, signal.SIG_IGN) # ctrl-Z, SIGSTP not on pi
 
 toggle_relay("1")
 toggle_relay("2")
-toggle_relay("3")
-toggle_relay("4")
+toggle_relay("1")
+toggle_relay("2")
 
 t=threading.Thread(target=keyboard_loop)
 t.start()
