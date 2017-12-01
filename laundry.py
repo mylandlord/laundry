@@ -184,14 +184,17 @@ signal.signal(signal.SIGINT, signal.SIG_IGN) # ctrl-C
 signal.signal(signal.SIGQUIT, signal.SIG_IGN) # ctrl-backslash - not on windows
 signal.signal(signal.SIGTSTP, signal.SIG_IGN) # ctrl-Z, SIGSTP not on pi
 
-toggle_relay("0")
 toggle_relay("1")
+toggle_relay("2")
+toggle_relay("3")
+toggle_relay("4")
 
 t=threading.Thread(target=keyboard_loop)
 t.start()
 print startupdir
 while quitnow==0:
     try:
+        print "ftp connect"
         ftp = FTP(cred.SERVER)
         try:
             ftp.login(cred.USER, cred.PASSWORD)
