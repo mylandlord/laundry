@@ -4,33 +4,41 @@
 # token will rotate as new input comes in if longer than 6
 
 import sys
+import time
 
-machine=''
-token=''
-    
+
+
 def sink_char(ch):
     global token
     global machine
-    print 'sink_char '+ch
+    global last_time
+    
+    print 'sink_char '+ ch + ' elapsed: ' + str(time.time()-last_time)
+    
     if ch=='\x27' or ch=='*':
         token=''
         machine=''
-    elif ch=='\bs':
-        if len(token) >= 1:
-            token=token[:-1]
-    elif ch.isdigit():
-        machine=ch
-    elif ch.isalpha():
-        if len(token)==6 and len(machine)==0:
-            token=token[1:6]+ch
-            print 'shift token :' + token
-        else:
-            token=token+ch
-    if len(machine)==1 and len(token)==6:
-        print "process_one calling try_move" + machine + token
-        try_move((machine+token).lower())
-        token=''
-        machine=''
+    else:
+        if time.time()-last_time > 30:
+            token=''
+            machine=''
+        if ch=='\bs':
+            if len(token) >= 1:
+                token=token[:-1]
+        elif ch.isdigit():
+            machine=ch
+        elif ch.isalpha():
+            if len(token)==6 and len(machine)==0:
+                token=token[1:6]+ch
+                print 'shift token :' + token
+            else:
+                token=token+ch
+        if len(machine)==1 and len(token)==6:
+            print "process_one calling try_move" + machine + token
+            try_move((machine+token).lower())
+            token=''
+            machine=''
+    last_time=time.time()
 
 def toggle_relay(m):
     ser.write(b"REL"+m+".ON"+chr(13)+chr(10))
@@ -67,13 +75,19 @@ def try_move(a):
                 ser=serial.Serial("/dev/ttyACM"+s,timeout=1)
     except:
         print 'not switched'
-    
+
+machine=''
+token=''
+last_time=time.time()
+
 if __name__=='__main__':
     def try_move(s):
         if s=="2ghijkl":
             print "PASSED1"
         elif s=="1bcdefg":
             print "PASSED2"
+        elif s=="3asdfgh":
+            print "PASSED3"
         else:
             print "FAILED"
         
@@ -100,3 +114,16 @@ if __name__=='__main__':
     sink_char('f')
     sink_char('g')
     sink_char('1')
+    
+    sink_char('q')
+    sink_char('w')
+    
+    time.sleep(31)
+    sink_char('a')
+    sink_char('s')
+    sink_char('d')
+    sink_char('f')
+    sink_char('3')
+    sink_char('g')
+    sink_char('h')
+    
