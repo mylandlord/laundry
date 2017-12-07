@@ -29,7 +29,7 @@ def sink_char(ch):
             machine=ch
         elif ch.isalpha():
             if len(token)==6 and len(machine)==0:
-		if token="wpmwpm":
+		if token=="wpmwpm":
                     sys.exit()
                 token=token[1:6]+ch
                 print 'shift token :' + token
