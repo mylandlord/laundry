@@ -92,6 +92,12 @@ except:
     s="1"
     ser=serial.Serial("/dev/ttyACM"+s,timeout=1)
 
+ser.write(chr(13)+chr(10))
+print ser.readline()
+print ser.readline()
+print ser.readline()
+print ser.readline()
+
 if __name__=='__main__':
     def try_move(s):
         if s=="2ghijkl":
