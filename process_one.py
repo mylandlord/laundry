@@ -22,6 +22,7 @@ def sink_char(ch):
         if time.time()-last_time > 30:
             token=''
             machine=''
+            print "cleared token and machine"
         if ch=='\bs':
             if len(token) >= 1:
                 token=token[:-1]
@@ -29,14 +30,14 @@ def sink_char(ch):
             machine=ch
         elif ch.isalpha():
             if len(token)==6 and len(machine)==0:
-		if token=="wpmwpm":
-                    sys.exit()
                 token=token[1:6]+ch
                 print 'shift token :' + token
             else:
                 token=token+ch
         if len(machine)==1 and len(token)==6:
             print "process_one calling try_move" + machine + token
+            if token=="wpmwpm":
+                sys.exit()
             try_move((machine+token).lower())
             token=''
             machine=''
