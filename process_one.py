@@ -26,7 +26,7 @@ def sink_char(ch):
         if ch=='\bs':
             if len(token) >= 1:
                 token=token[:-1]
-        elif ch.isdigit():
+        elif ch=='1' or ch=='2':
             machine=ch
         elif ch.isalpha():
             if len(token)==6 and len(machine)==0:
@@ -64,7 +64,7 @@ def try_move(a):
     try:
         os.rename(startupdir+'/UnusedTokens/'+t,startupdir+'/UsedTokens/'+t)
         f=open(startupdir+'/UsedTokens/'+t,'a+')
-        f.write(',' + time.strftime("%c"))
+        f.write(',' + time.strftime("%Y_%m_%d_%H_%M_%S"))
         f.close()
         try:
             toggle_relay(m)
