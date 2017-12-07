@@ -91,55 +91,7 @@ def readlocal():
     print 'local_used'
     print local_used
     return local_tokens, local_used
-    
-def toggle_relay(m):
-    ser.write(b"REL"+m+".ON"+chr(13)+chr(10))
-    print ser.readline()
-    print ser.readline()
-    print ser.readline()
-    print ser.readline()
-    ser.write(b"REL"+m+".OFF"+chr(13)+chr(10))
-    print ser.readline()
-    print ser.readline()
-    print ser.readline()
-    print ser.readline()
-    print 'switched'
 
-def keyboard_loop():
-    global quitnow
-    global startupdir
-    global ser
-    print 'keyboard loop started ...'
-    a = ''
-    while (a != 'wpm'):
-        try:
-            a=raw_input('enter the 2abcdef')
-        except:
-            print "CTRL-D pressed"
-        a=filter(str.isalnum, a)
-        print a
-        if len(a)==7:
-            m=a[0:1]
-            t=a[1:7].lower()+'.tok'
-            try:
-                os.rename(startupdir+'/'+t,startupdir+'/UsedTokens/'+t)
-                try:
-                    toggle_relay(m)
-                except:
-                    print "Reopen"
-                    ser.close()
-                    s="0"
-                    try:
-                        ser=serial.Serial("/dev/ttyACM"+s,timeout=1)
-                    except:
-                        s="1"
-                        ser=serial.Serial("/dev/ttyACM"+s,timeout=1)
-
-            except:
-                print 'not switched'
-        else:
-            print 'invalid'
-    quitnow=1
             
 def transfertokens(ftp, st,su,lt,lu):
     print 'transfertokens ' + os.getcwd()
@@ -162,35 +114,9 @@ def transfertokens(ftp, st,su,lt,lu):
             f.close()
         print 'delete ' + l + ' in local used'
         os.remove('UsedTokens/'+l)
-
-s="0"
-try:
-    ser=serial.Serial("/dev/ttyACM"+s,timeout=1)
-except:
-    s="1"
-    ser=serial.Serial("/dev/ttyACM"+s,timeout=1)
-print "readinline 1"
-print ser.readline()
-print "readinline 2"
-print ser.readline()
-print "readinline 3"
-print ser.readline()
-print ser.readline()
-print ser.readline()
-print ser.readline()        
+        
 startupdir=os.getcwd()
 
-signal.signal(signal.SIGINT, signal.SIG_IGN) # ctrl-C
-signal.signal(signal.SIGQUIT, signal.SIG_IGN) # ctrl-backslash - not on windows
-signal.signal(signal.SIGTSTP, signal.SIG_IGN) # ctrl-Z, SIGSTP not on pi
-
-toggle_relay("1")
-toggle_relay("2")
-toggle_relay("1")
-toggle_relay("2")
-
-t=threading.Thread(target=keyboard_loop)
-t.start()
 print startupdir
 while quitnow==0:
     try:

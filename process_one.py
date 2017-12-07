@@ -5,8 +5,8 @@
 
 import sys
 import time
-
-
+import os
+import serial
 
 def sink_char(ch):
     global token
@@ -29,6 +29,8 @@ def sink_char(ch):
             machine=ch
         elif ch.isalpha():
             if len(token)==6 and len(machine)==0:
+		if token="wpmwpm":
+                    sys.exit()
                 token=token[1:6]+ch
                 print 'shift token :' + token
             else:
@@ -55,6 +57,7 @@ def toggle_relay(m):
     
 # assume alpha numeric only, lower case only, first char is digit, following six are alpha
 def try_move(a):
+    global startupdir
     m=a[0:1]
     t=a[1:7]+'.tok'
     try:
@@ -76,9 +79,17 @@ def try_move(a):
     except:
         print 'not switched'
 
+
 machine=''
 token=''
 last_time=time.time()
+startupdir=os.getcwd()
+s='0'
+try:
+    ser=serial.Serial("/dev/ttyACM"+s,timeout=1)
+except:
+    s="1"
+    ser=serial.Serial("/dev/ttyACM"+s,timeout=1)
 
 if __name__=='__main__':
     def try_move(s):
