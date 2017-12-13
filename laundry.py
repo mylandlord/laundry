@@ -12,6 +12,16 @@ import signal
 
 POLLSECONDS=600
 
+
+#  ISSUES: syncs more than *.tok
+#   doesnt autocreate UsedTokens and UnusedTokens directories
+#   
+#   install: chmod +X launcher.sh
+#   add the following line to the end of .bashrc in /home/pi
+#   . /home/pi/laundry/launcher.sh
+#   git clone into /home/pi, giving /home/pi/laundry/UsedTokens
+
+
 # Python 2.7 because thats on my Raspberry Pi
 # this is the embedded client
 # intended for auto execution on raspberry pi boot
