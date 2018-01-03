@@ -61,7 +61,9 @@ def readserver(ftp):
     server_tokens = []
     for line in tokens:
         if (line.split(";")[0]=="Type=file"):
-            server_tokens.append( line.split(";")[4][1:]) 
+            fn = line.split(";")[4][1:]
+            if fn.endswith(".tok"):
+                server_tokens.append( fn )
     ftp.cwd("UsedTokens")
     tokens=[]
     try:
@@ -95,8 +97,9 @@ def transfertokens(ftp, st,su,lt,lu):
     print 'transfertokens ' + os.getcwd()
     for s in st:
         if not (s in lt) and not (s in lu) and not (s in su):
-            print 'create '+ s + ' in local unused '
+            print 'before create '+ s + ' in local unused '
             f= open('UnusedTokens/'+s,"w+")
+            f.write(' ')
             f.close()
     for l in lu:
         print 'delete ' + l + ' in server tokens'
@@ -145,5 +148,9 @@ def transfer_thread():
 if __name__=="__main__":
     startupdir=os.getcwd()
     print startupdir
+
+    signal.signal(signal.SIGINT,signal.SIG_IGN)
+    signal.signal(signal.SIGQUIT,signal.SIG_IGN)
+
     transfer_thread()
 

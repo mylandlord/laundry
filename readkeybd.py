@@ -15,7 +15,7 @@ def getKey():
 	termios.tcsetattr(fd, termios.TCSANOW, new)
 	key = None
 	try:
-		key = os.read(fd, 3)
+		key = os.read(fd, 1)
 	finally:
 		termios.tcsetattr(fd, termios.TCSAFLUSH, old)
 	return key

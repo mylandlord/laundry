@@ -13,17 +13,16 @@ def sink_char(ch):
     global machine
     global last_time
     
-    print 'sink_char '+ ch + ' elapsed: ' + str(time.time()-last_time)
+    print 'sink_char '+ str(ord(ch)) + ' elapsed: ' + str(time.time()-last_time)
     
-    if ch=='\x27' or ch=='*':
+    if ord(ch)==27 or  ord(ch) == 13 or ord(ch) == 10:
         token=''
         machine=''
     else:
         if time.time()-last_time > 30:
             token=''
             machine=''
-            print "cleared token and machine"
-        if ch=='\bs':
+        if ord(ch)==8:
             if len(token) >= 1:
                 token=token[:-1]
         elif ch=='1' or ch=='2':
@@ -41,6 +40,7 @@ def sink_char(ch):
             try_move((machine+token).lower())
             token=''
             machine=''
+    print "token=" + machine+token
     last_time=time.time()
 
 def toggle_relay(m):
@@ -62,10 +62,15 @@ def try_move(a):
     m=a[0:1]
     t=a[1:7]+'.tok'
     try:
+        
         os.rename(startupdir+'/UnusedTokens/'+t,startupdir+'/UsedTokens/'+t)
-        f=open(startupdir+'/UsedTokens/'+t,'a+')
+        print "after rename"
+        f=open(startupdir+'/UsedTokens/'+t,'a')
+        print "after open for append"
         f.write(',' + time.strftime("%Y_%m_%d_%H_%M_%S"))
+        print "after f.write"
         f.close()
+        print "after f.close"
         try:
             toggle_relay(m)
         except:
